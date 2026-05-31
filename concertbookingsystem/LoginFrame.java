@@ -2,6 +2,7 @@ package com.mycompany.concertbookingsystem;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -11,18 +12,19 @@ public class LoginFrame extends JFrame {
     
     // Form input fields
     private JTextField loginUserField, signUpUserField;
-    private JPasswordField loginPassField, signUpPassField;
+    private JPasswordField loginPassField, signUpPassField, signUpConfirmPassField;
     
     // Switchable view components
     private JPanel cardsContainer;
     private CardLayout cardLayout;
-    
-    // Harmonized Brand Colors
-    private final Color BACKGROUND_BLUE = new Color(24, 119, 242);
-    private final Color CARD_WHITE = Color.WHITE;
-    private final Color PINK_ACCENT = new Color(254, 44, 85);
-    private final Color TEXT_DARK = new Color(51, 51, 51);
-    private final Color TEXT_LIGHT = new Color(119, 119, 119);
+
+    // Brand Colors
+    private final Color PRIMARY_COLOR = Color.decode("#1800ad");
+    private final Color SECONDARY_COLOR = Color.WHITE;
+    private final Color LIGHT_GRAY = new Color(240, 240, 240);
+    private final Color TEXT_COLOR = new Color(20, 20, 140);
+    private final Color MUTED_TEXT = Color.decode("#C7C2EB");
+    private JPanel currentBuildingCard;
 
     public LoginFrame() {
         dbManager = new DatabaseManager();
@@ -39,7 +41,7 @@ public class LoginFrame extends JFrame {
 
         // 1. Root main frame wrapper panel
         JPanel rootPanel = new JPanel(new BorderLayout());
-        rootPanel.setBackground(BACKGROUND_BLUE);
+        rootPanel.setBackground(PRIMARY_COLOR);
 
         // 2. HEADER NAVBAR SECTION (Top Alignment)
         JPanel headerPanel = new JPanel(new BorderLayout());
@@ -48,7 +50,7 @@ public class LoginFrame extends JFrame {
 
         JLabel brandLogo = new JLabel("🎵 Bookist");
         brandLogo.setFont(new Font("SansSerif", Font.BOLD, 24));
-        brandLogo.setForeground(Color.WHITE);
+        brandLogo.setForeground(SECONDARY_COLOR);
         headerPanel.add(brandLogo, BorderLayout.WEST);
         rootPanel.add(headerPanel, BorderLayout.NORTH);
 
@@ -65,133 +67,93 @@ public class LoginFrame extends JFrame {
         cardsContainer.add(buildSignUpCard(), "SIGNUP_CARD");
         centerWrapper.add(cardsContainer);
         rootPanel.add(centerWrapper, BorderLayout.CENTER);
-
+        
+     
+        
+        
         add(rootPanel);
         cardLayout.show(cardsContainer, "LOGIN_CARD");
     }
 
-    // --- FORM VIEW BUILDERS ---
-    
+
+    // LOG IN BUILDER
     private JPanel buildLoginCard() {
-        JPanel card = createBaseCardPanel();
+        JPanel card = createBaseCardPanel(250);
+        currentBuildingCard = card;
 
-        JLabel title = new JLabel("LOGIN");
-        title.setFont(new Font("SansSerif", Font.BOLD, 22));
-        title.setForeground(TEXT_DARK);
-        title.setBounds(35, 30, 100, 30);
-        card.add(title);
+        addFormLabel("Username / Email", 30);
+        loginUserField = (JTextField) addFormField(new JTextField(), 55);
 
-        JLabel userLabel = new JLabel("Username / Email");
-        styleInputLabel(userLabel);
-        userLabel.setBounds(35, 80, 280, 20);
-        card.add(userLabel);
+        addFormLabel("Password", 105);
+        loginPassField = (JPasswordField) addFormField(new JPasswordField(), 130);
 
-        loginUserField = new JTextField();
-        styleInputField(loginUserField);
-        loginUserField.setBounds(35, 105, 280, 35);
-        card.add(loginUserField);
+        PasswordVisibilityToggle loginShowPass = new PasswordVisibilityToggle(
+            "Show Password", TEXT_COLOR, SECONDARY_COLOR, loginPassField
+        );
+        loginShowPass.setBounds(35, 175, 150, 20);
+        card.add(loginShowPass);
 
-        JLabel passLabel = new JLabel("Password");
-        styleInputLabel(passLabel);
-        passLabel.setBounds(35, 155, 280, 20);
-        card.add(passLabel);
-
-        loginPassField = new JPasswordField();
-        styleInputField(loginPassField);
-        loginPassField.setBounds(35, 180, 280, 35);
-        card.add(loginPassField);
-
-        JButton loginBtn = new JButton("LOGIN");
-        styleFormButton(loginBtn);
-        loginBtn.setBounds(35, 240, 280, 40);
-        card.add(loginBtn);
-
-        JLabel footerText = new JLabel("Need an account? ");
-        footerText.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        footerText.setForeground(TEXT_LIGHT);
-        footerText.setBounds(65, 305, 130, 20);
-        card.add(footerText);
-
-        JButton switchToSignUpBtn = new JButton("SIGN UP");
-        styleHyperlinkButton(switchToSignUpBtn);
-        switchToSignUpBtn.setBounds(180, 305, 110, 20);
-        card.add(switchToSignUpBtn);
-
+        JButton loginBtn = addActionButton("LOGIN", 205);
         loginBtn.addActionListener(e -> handleLoginLogic());
-        switchToSignUpBtn.addActionListener(e -> cardLayout.show(cardsContainer, "SIGNUP_CARD"));
 
-        return card;
+        JPanel footerPanel = buildFooterPanel("Need an account?", "SIGN UP", e -> cardLayout.show(cardsContainer, "SIGNUP_CARD"));
+        cardsContainer.revalidate();
+        cardsContainer.repaint();
+
+        return buildWrappedCard("LOGIN", card, footerPanel);
     }
-
+    
+    //SIGN UP 
     private JPanel buildSignUpCard() {
-        JPanel card = createBaseCardPanel();
+        JPanel card = createBaseCardPanel(350);
+        currentBuildingCard = card;
 
-        JLabel title = new JLabel("SIGN UP");
-        title.setFont(new Font("SansSerif", Font.BOLD, 22));
-        title.setForeground(TEXT_DARK);
-        title.setBounds(35, 30, 120, 30);
-        card.add(title);
+        addFormLabel("Username / email", 30);
+        signUpUserField = (JTextField) addFormField(new JTextField(), 55);
 
-        JLabel userLabel = new JLabel("Username / Email");
-        styleInputLabel(userLabel);
-        userLabel.setBounds(35, 80, 280, 20);
-        card.add(userLabel);
+        addFormLabel("Password", 105);
+        signUpPassField = (JPasswordField) addFormField(new JPasswordField(), 130);
 
-        signUpUserField = new JTextField();
-        styleInputField(signUpUserField);
-        signUpUserField.setBounds(35, 105, 280, 35);
-        card.add(signUpUserField);
+        addFormLabel("Confirm Password", 180);
+        signUpConfirmPassField = (JPasswordField) addFormField(new JPasswordField(), 205);
 
-        JLabel passLabel = new JLabel("Password");
-        styleInputLabel(passLabel);
-        passLabel.setBounds(35, 155, 280, 20);
-        card.add(passLabel);
+        PasswordVisibilityToggle showPassCheckBox = new PasswordVisibilityToggle(
+            "Show Password", TEXT_COLOR, SECONDARY_COLOR, signUpPassField, signUpConfirmPassField
+        );
+        showPassCheckBox.setBounds(35, 250, 150, 20);
+        card.add(showPassCheckBox);
 
-        signUpPassField = new JPasswordField();
-        styleInputField(signUpPassField);
-        signUpPassField.setBounds(35, 180, 280, 35);
-        card.add(signUpPassField);
-
-        JButton signUpBtn = new JButton("SIGN UP");
-        styleFormButton(signUpBtn);
-        signUpBtn.setBounds(35, 240, 280, 40);
-        card.add(signUpBtn);
-
-        JLabel footerText = new JLabel("Already a user? ");
-        footerText.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        footerText.setForeground(TEXT_LIGHT);
-        footerText.setBounds(70, 305, 120, 20);
-        card.add(footerText);
-
-        JButton switchToLoginBtn = new JButton("LOGIN");
-        styleHyperlinkButton(switchToLoginBtn);
-        switchToLoginBtn.setBounds(175, 305, 100, 20);
-        card.add(switchToLoginBtn);
-
+        JButton signUpBtn = addActionButton("SIGN UP", 280);
         signUpBtn.addActionListener(e -> handleSignUpLogic());
-        switchToLoginBtn.addActionListener(e -> cardLayout.show(cardsContainer, "LOGIN_CARD"));
 
-        return card;
+        JPanel footerPanel = buildFooterPanel("Already a user?", "LOGIN", e -> cardLayout.show(cardsContainer, "LOGIN_CARD"));
+        cardsContainer.revalidate();
+        cardsContainer.repaint();
+
+        return buildWrappedCard("SIGN UP", card, footerPanel);
     }
 
+
+    
     // --- DESIGN COMPONENT DECORATORS ---
 
-    private JPanel createBaseCardPanel() {
-        JPanel panel = new JPanel(null);
-        panel.setBackground(CARD_WHITE);
-        panel.setPreferredSize(new Dimension(350, 360));
+    private JPanel createBaseCardPanel(int height) {
+        JPanel panel = new JPanel(null); // Absolute layout inside card
+        panel.setBackground(SECONDARY_COLOR);
+        panel.setPreferredSize(new Dimension(350, height)); // Uses the custom height parameter
         panel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1, true));
         return panel;
     }
 
+
     private void styleInputLabel(JLabel label) {
         label.setFont(new Font("SansSerif", Font.BOLD, 12));
-        label.setForeground(TEXT_DARK);
+        label.setForeground(TEXT_COLOR);
     }
 
     private void styleInputField(JTextField field) {
         field.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        field.setForeground(TEXT_DARK);
+        field.setForeground(TEXT_COLOR);
         field.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(210, 210, 210), 1, true),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
@@ -200,8 +162,8 @@ public class LoginFrame extends JFrame {
 
     private void styleFormButton(JButton button) {
         button.setFont(new Font("SansSerif", Font.BOLD, 14));
-        button.setForeground(Color.WHITE);
-        button.setBackground(PINK_ACCENT);
+        button.setForeground(SECONDARY_COLOR);
+        button.setBackground(PRIMARY_COLOR);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -209,7 +171,7 @@ public class LoginFrame extends JFrame {
 
     private void styleHyperlinkButton(JButton button) {
         button.setFont(new Font("SansSerif", Font.BOLD, 13));
-        button.setForeground(PINK_ACCENT);
+        button.setForeground(SECONDARY_COLOR);
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
@@ -222,7 +184,6 @@ public class LoginFrame extends JFrame {
     private void handleLoginLogic() {
         String user = loginUserField.getText().trim();
         String pass = new String(loginPassField.getPassword()).trim();
-
         if (user.isEmpty() || pass.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.");
             return;
@@ -242,19 +203,24 @@ public class LoginFrame extends JFrame {
     private void handleSignUpLogic() {
         String user = signUpUserField.getText().trim();
         String pass = new String(signUpPassField.getPassword()).trim();
+        String confirmPass = new String(signUpConfirmPassField.getPassword()).trim();
 
         if (user.isEmpty() || pass.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.");
             return;
         }
-
-        if (dbManager.registerUser(user, pass)) {
-            JOptionPane.showMessageDialog(this, "Account created successfully! You can now log in.");
-            signUpUserField.setText("");
-            signUpPassField.setText("");
-            cardLayout.show(cardsContainer, "LOGIN_CARD");
+        
+        if (pass.equals(confirmPass)) {
+            if (dbManager.registerUser(user, pass)) {
+                JOptionPane.showMessageDialog(this, "Account created successfully! You can now log in.");
+                signUpUserField.setText("");
+                signUpPassField.setText("");
+                cardLayout.show(cardsContainer, "LOGIN_CARD");
+            } else {
+                JOptionPane.showMessageDialog(this, "Username taken or database error.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         } else {
-            JOptionPane.showMessageDialog(this, "Username taken or database error.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Confirm password must be the same");
         }
     }
 
@@ -263,5 +229,96 @@ public class LoginFrame extends JFrame {
         if (reply == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
+    }
+     // --- REFACTORING HELPER METHODS ---
+
+    // 1. Helper to create, style, position, and add labels
+    private JLabel addFormLabel(String text, int y) {
+        JLabel label = new JLabel(text);
+        styleInputLabel(label);
+        label.setBounds(35, y, 280, 20);
+        
+        currentBuildingCard.add(label); 
+        return label;
+    }
+
+    // 2. Helper to style, position, and add text/password fields
+    private JTextField addFormField(JTextField field, int y) {
+        styleInputField(field);
+        field.setBounds(35, y, 280, 35);
+        
+        currentBuildingCard.add(field); 
+        return field;
+    }
+    // 3. Main Action Button Helper (LOGIN / SIGN UP)
+    private JButton addActionButton(String text, int y) {
+        JButton button = new JButton(text);
+        styleFormButton(button);
+        button.setBounds(35, y, 280, 40);
+        
+        currentBuildingCard.add(button); // Placed onto the active card
+        
+        return button;
+    }
+
+    // 4. Muted Footer Text Helper ("Need an account? " / "Already a user? ")
+    private JLabel addFooterText(String text, int x, int y, int width) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        label.setForeground(MUTED_TEXT);
+        label.setBounds(x, y, width, 20);
+        
+        currentBuildingCard.add(label); // Placed onto the active card
+        
+        return label;
+    }
+
+    // 5. Hyperlink Switch Button Helper (SIGN UP / LOGIN links)
+    private JButton addSwitchButton(String text, int x, int y, int width) {
+        JButton button = new JButton(text);
+        styleHyperlinkButton(button);
+        button.setBounds(x, y, width, 20);
+        currentBuildingCard.add(button); // Placed onto the active card
+        return button;
+    }
+
+    private JPanel buildFooterPanel(String text, String buttonText, ActionListener action) {
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
+        footer.setOpaque(false);
+
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("SansSerif", Font.BOLD, 12));
+        label.setForeground(Color.WHITE);
+
+        JButton switchButton = new JButton(buttonText);
+        styleHyperlinkButton(switchButton);
+        switchButton.addActionListener(action);
+
+        footer.add(label);
+        footer.add(switchButton);
+        return footer;
+    }
+
+    // 6. Helper to combine your two card wrappers into one single method
+    private JPanel buildWrappedCard(String titleText, JPanel innerCard, JPanel footerPanel) {
+        JPanel wrapper = new JPanel();
+        wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
+        wrapper.setOpaque(false);
+        wrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 24, 0));
+
+        JLabel title = new JLabel(titleText);
+        title.setFont(new Font("SansSerif", Font.BOLD, 30));
+        title.setForeground(Color.WHITE);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        innerCard.setAlignmentX(Component.CENTER_ALIGNMENT);
+        footerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        wrapper.add(title);
+        wrapper.add(Box.createVerticalStrut(16));
+        wrapper.add(innerCard);
+        wrapper.add(Box.createVerticalStrut(18));
+        wrapper.add(footerPanel);
+        return wrapper;
     }
 }

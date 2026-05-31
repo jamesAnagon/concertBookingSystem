@@ -12,7 +12,7 @@ public class HomePage extends JFrame {
     public static String currentUsername = "";
 
     public HomePage() {
-        setTitle("Concert Sphere - Home");
+        setTitle("Bookist");
         setExtendedState(JFrame.MAXIMIZED_BOTH); // Start Fullscreen
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         
