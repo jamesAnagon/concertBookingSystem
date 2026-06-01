@@ -1,6 +1,10 @@
 package com.mycompany.concertbookingsystem;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DatabaseManager {
     private static final String URL = "jdbc:mysql://localhost:3306/concert_db";
@@ -79,6 +83,70 @@ public class DatabaseManager {
         } catch (SQLException e) {
             System.out.println("❌ Delete Error: " + e.getMessage());
         }
+    }
+
+    // Return all bookings as a list of maps (column -> value)
+    public List<Map<String, Object>> getAllBookings() {
+        String sql = "SELECT * FROM bookings";
+        List<Map<String, Object>> rows = new ArrayList<>();
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            ResultSetMetaData md = rs.getMetaData();
+            int cols = md.getColumnCount();
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                for (int i = 1; i <= cols; i++) {
+                    row.put(md.getColumnLabel(i), rs.getObject(i));
+                }
+                rows.add(row);
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Read Error: " + e.getMessage());
+        }
+        return rows;
+    }
+
+    public List<Map<String, Object>> getBookingsForUser(String username) {
+        String sql = "SELECT * FROM bookings WHERE customer_name = ?";
+        List<Map<String, Object>> rows = new ArrayList<>();
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData md = rs.getMetaData();
+                int cols = md.getColumnCount();
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    for (int i = 1; i <= cols; i++) {
+                        row.put(md.getColumnLabel(i), rs.getObject(i));
+                    }
+                    rows.add(row);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Read Error: " + e.getMessage());
+        }
+        return rows;
+    }
+
+    public List<Map<String, Object>> getBookingsForEvent(String eventName) {
+        String sql = "SELECT * FROM bookings WHERE concert_name LIKE ?";
+        List<Map<String, Object>> rows = new ArrayList<>();
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, eventName + " (%)");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData md = rs.getMetaData();
+                int cols = md.getColumnCount();
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    for (int i = 1; i <= cols; i++) {
+                        row.put(md.getColumnLabel(i), rs.getObject(i));
+                    }
+                    rows.add(row);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Read Error: " + e.getMessage());
+        }
+        return rows;
     }
 
 

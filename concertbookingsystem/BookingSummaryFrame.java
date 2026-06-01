@@ -1,236 +1,314 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+package com.mycompany.concertbookingsystem;
 
 import javax.swing.*;
 import java.awt.*;
-public class BookingSummaryFrame extends javax.swing.JFrame {
-    
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(BookingSummaryFrame.class.getName());
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
-    /**
-     * Creates new form BookingSummaryFrame
-     */
-    public BookingSummaryFrame() {
+public class BookingSummaryFrame extends JFrame {
+
+    private final Color PRIMARY_COLOR = Color.decode("#1800ad");
+    private final Color SECONDARY_COLOR = Color.WHITE;
+    private final Color SURFACE = new Color(245, 245, 251);
+    private final Color CARD_BG = new Color(236, 238, 251);
+    private final Color TEXT_HEADING = new Color(24, 24, 100);
+    private final Color TEXT_BODY = new Color(68, 74, 132);
+    private final JFrame owner;
+    private final String ticketId;
+
+    public BookingSummaryFrame(JFrame owner, String customer, String eventName, List<String> seats, double totalPrice) {
+        this.owner = owner;
         setTitle("Booking Summary");
-        setSize(800, 600);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(900, 640);
+        setLocationRelativeTo(owner);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
-        setLayout(null);
-
-        // =========================
-        // MAIN PANEL
-        // =========================
-
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(null);
-        mainPanel.setBackground(new Color(245, 245, 245));
-        mainPanel.setBounds(0, 0, 800, 600);
-
-        // =========================
-        // TITLE
-        // =========================
-
-        JLabel lblTitle = new JLabel("BOOKING SUMMARY");
-        lblTitle.setFont(new Font("Serif", Font.BOLD, 32));
-        lblTitle.setForeground(new Color(20, 20, 180));
-        lblTitle.setBounds(220, 20, 400, 40);
-        mainPanel.add(lblTitle);
-
-        // =========================
-        // CARD PANEL
-        // =========================
-
-        JPanel cardPanel = new JPanel();
-        cardPanel.setLayout(null);
-        cardPanel.setBackground(new Color(190, 240, 240));
-        cardPanel.setBounds(240, 80, 320, 450);
-
-        // =========================
-        // CONCERT SECTION
-        // =========================
-
-        JLabel lblConcert = new JLabel("Concert:");
-        lblConcert.setFont(new Font("Serif", Font.BOLD, 20));
-        lblConcert.setForeground(new Color(20, 20, 180));
-        lblConcert.setBounds(20, 20, 120, 30);
-        cardPanel.add(lblConcert);
-
-        JLabel lblConcertName = new JLabel("KYLE - SEOUL");
-        lblConcertName.setFont(new Font("Arial", Font.BOLD, 18));
-        lblConcertName.setBounds(160, 18, 140, 25);
-        cardPanel.add(lblConcertName);
-
-        JLabel lblDate = new JLabel("May 30, 2026");
-        lblDate.setFont(new Font("Arial", Font.PLAIN, 12));
-        lblDate.setBounds(190, 42, 100, 15);
-        cardPanel.add(lblDate);
-
-        // =========================
-        // HEADERS
-        // =========================
-
-        JLabel lblSeatHeader = new JLabel("SELECTED SEATS:");
-        lblSeatHeader.setFont(new Font("Arial", Font.BOLD, 14));
-        lblSeatHeader.setBounds(20, 85, 140, 20);
-        cardPanel.add(lblSeatHeader);
-
-        JLabel lblPriceHeader = new JLabel("UNIT PRICE:");
-        lblPriceHeader.setFont(new Font("Arial", Font.BOLD, 14));
-        lblPriceHeader.setBounds(210, 85, 100, 20);
-        cardPanel.add(lblPriceHeader);
-
-        // =========================
-        // SEATS
-        // =========================
-
-        String[] seats = {
-                "REG-C3",
-                "REG-C4",
-                "REG-C5",
-                "VIP-A3",
-                "VIP-A4"
-        };
-
-        String[] prices = {
-                "$5",
-                "$5",
-                "$5",
-                "$10",
-                "$10"
-        };
-
-        int startY = 120;
-        int gap = 28;
-
-        for (int i = 0; i < seats.length; i++) {
-
-            JLabel seatLabel = new JLabel(seats[i]);
-            seatLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-            seatLabel.setBounds(40, startY + (i * gap), 120, 20);
-            cardPanel.add(seatLabel);
-
-            JLabel priceLabel = new JLabel(prices[i]);
-            priceLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-            priceLabel.setBounds(230, startY + (i * gap), 60, 20);
-            cardPanel.add(priceLabel);
-        }
-
-        // =========================
-        // SEPARATOR
-        // =========================
-
-        JSeparator separator = new JSeparator();
-        separator.setBounds(20, 270, 280, 10);
-        cardPanel.add(separator);
-
-        // =========================
-        // TOTAL PAYMENT
-        // =========================
-
-        JLabel lblTotalText = new JLabel("TOTAL PAYMENT");
-        lblTotalText.setFont(new Font("Arial", Font.BOLD, 18));
-        lblTotalText.setBounds(20, 285, 180, 25);
-        cardPanel.add(lblTotalText);
-
-        JLabel lblTotal = new JLabel("$35");
-        lblTotal.setFont(new Font("Arial", Font.BOLD, 30));
-        lblTotal.setForeground(new Color(20, 20, 180));
-        lblTotal.setBounds(220, 278, 80, 35);
-        cardPanel.add(lblTotal);
-
-        // =========================
-        // PAYMENT METHOD
-        // =========================
-
-        JLabel lblPayment = new JLabel("PAY WITH");
-        lblPayment.setFont(new Font("Arial", Font.BOLD, 16));
-        lblPayment.setBounds(20, 335, 100, 25);
-        cardPanel.add(lblPayment);
-
-        String[] methods = {
-                "GCash",
-                "PayMaya",
-                "Credit Card",
-                "Debit Card"
-        };
-
-        JComboBox<String> paymentBox =
-                new JComboBox<>(methods);
-
-        paymentBox.setFont(new Font("Arial", Font.PLAIN, 14));
-        paymentBox.setBounds(160, 333, 120, 30);
-        cardPanel.add(paymentBox);
-
-        // =========================
-        // PAY BUTTON
-        // =========================
-
-        JButton btnPay = new JButton("PAY NOW");
-        btnPay.setFont(new Font("Arial", Font.BOLD, 18));
-        btnPay.setForeground(Color.WHITE);
-        btnPay.setBackground(new Color(20, 20, 180));
-        btnPay.setFocusPainted(false);
-        btnPay.setBounds(80, 385, 160, 45);
-
-        cardPanel.add(btnPay);
-
-        // =========================
-        // ADD PANELS
-        // =========================
-
-        mainPanel.add(cardPanel);
-        add(mainPanel);
-
-        setVisible(true);
-    }
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
+        
+        this.ticketId = createTicketId(eventName, seats.get(0), customer);
+        
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if (owner != null) {
+                    owner.setVisible(true);
+                    owner.toFront();
                 }
             }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+        });
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new BookingSummaryFrame().setVisible(true));
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(SURFACE);
+        root.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
+        setContentPane(root);
+
+        JPanel header = new JPanel();
+        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        header.setOpaque(true);
+        header.setBackground(PRIMARY_COLOR);
+        header.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
+
+        JLabel titleLabel = new JLabel("BOOKING CONFIRMED");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 30));
+        titleLabel.setForeground(SECONDARY_COLOR);
+        titleLabel.setAlignmentX(LEFT_ALIGNMENT);
+        header.add(titleLabel);
+
+        JLabel subtitleLabel = new JLabel("Your tickets are reserved and ready for the show.");
+        subtitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        subtitleLabel.setForeground(new Color(224, 224, 255));
+        subtitleLabel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
+        subtitleLabel.setAlignmentX(LEFT_ALIGNMENT);
+        header.add(subtitleLabel);
+
+        root.add(header, BorderLayout.NORTH);
+
+        JPanel content = new JPanel(new BorderLayout(20, 20));
+        content.setOpaque(false);
+        content.setBorder(BorderFactory.createEmptyBorder(18, 0, 0, 0));
+        root.add(content, BorderLayout.CENTER);
+
+        JPanel mainContent = new JPanel(new GridLayout(1, 2, 20, 0));
+        mainContent.setOpaque(false);
+        content.add(mainContent, BorderLayout.CENTER);
+
+        // Left side: Summary Card
+        JPanel summaryCard = new JPanel(new BorderLayout(0, 18));
+        summaryCard.setOpaque(true);
+        summaryCard.setBackground(CARD_BG);
+        summaryCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(PRIMARY_COLOR, 2),
+                BorderFactory.createEmptyBorder(22, 22, 22, 22)));
+
+        JLabel eventLabel = new JLabel(eventName);
+        eventLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        eventLabel.setForeground(TEXT_HEADING);
+        summaryCard.add(eventLabel, BorderLayout.NORTH);
+
+        JPanel details = new JPanel(new GridBagLayout());
+        details.setOpaque(false);
+        GridBagConstraints gc = new GridBagConstraints();
+        gc.gridx = 0;
+        gc.anchor = GridBagConstraints.WEST;
+        gc.insets = new Insets(8, 0, 8, 0);
+
+        JLabel customerLabel = new JLabel("Customer");
+        customerLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        customerLabel.setForeground(PRIMARY_COLOR.darker());
+        details.add(customerLabel, gc);
+
+        gc.gridy = 1;
+        JLabel customerValue = new JLabel(customer);
+        customerValue.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        customerValue.setForeground(TEXT_BODY);
+        details.add(customerValue, gc);
+
+        gc.gridy = 2;
+        JLabel seatsLabel = new JLabel("Selected Seats");
+        seatsLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        seatsLabel.setForeground(PRIMARY_COLOR.darker());
+        details.add(seatsLabel, gc);
+
+        gc.gridy = 3;
+        JPanel seatListPanel = new JPanel();
+        seatListPanel.setOpaque(false);
+        seatListPanel.setLayout(new BoxLayout(seatListPanel, BoxLayout.Y_AXIS));
+        for (String seat : seats) {
+            JLabel seatValue = new JLabel("• " + seat);
+            seatValue.setFont(new Font("SansSerif", Font.PLAIN, 15));
+            seatValue.setForeground(TEXT_BODY);
+            seatListPanel.add(seatValue);
+        }
+        details.add(seatListPanel, gc);
+
+        gc.gridy = 4;
+        JLabel totalLabel = new JLabel("Total Due");
+        totalLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        totalLabel.setForeground(PRIMARY_COLOR.darker());
+        details.add(totalLabel, gc);
+
+        gc.gridy = 5;
+        JLabel totalValue = new JLabel(String.format("₱%.2f", totalPrice));
+        totalValue.setFont(new Font("SansSerif", Font.BOLD, 28));
+        totalValue.setForeground(PRIMARY_COLOR);
+        details.add(totalValue, gc);
+
+        summaryCard.add(details, BorderLayout.CENTER);
+
+        mainContent.add(summaryCard);
+
+        // Right side: E-Ticket Preview
+        JPanel ticketCard = new JPanel(new BorderLayout(0, 16));
+        ticketCard.setOpaque(true);
+        ticketCard.setBackground(CARD_BG);
+        ticketCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(PRIMARY_COLOR, 2),
+                BorderFactory.createEmptyBorder(22, 22, 22, 22)));
+
+        JLabel ticketTitle = new JLabel("E-Ticket Preview");
+        ticketTitle.setFont(new Font("SansSerif", Font.BOLD, 18));
+        ticketTitle.setForeground(PRIMARY_COLOR.darker());
+        ticketCard.add(ticketTitle, BorderLayout.NORTH);
+
+        QrPreviewPanel qrPreview = new QrPreviewPanel();
+        qrPreview.setSeed(ticketId);
+        qrPreview.setPreferredSize(new Dimension(220, 220));
+        ticketCard.add(qrPreview, BorderLayout.CENTER);
+
+        JPanel ticketFooter = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        ticketFooter.setOpaque(false);
+        JButton exportBtn = new JButton("Export Ticket");
+        exportBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        exportBtn.setBackground(PRIMARY_COLOR);
+        exportBtn.setForeground(SECONDARY_COLOR);
+        exportBtn.setFocusPainted(false);
+        exportBtn.addActionListener(e -> exportTicketImage(customer, eventName));
+        ticketFooter.add(exportBtn);
+        ticketCard.add(ticketFooter, BorderLayout.SOUTH);
+
+        mainContent.add(ticketCard);
+
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        footer.setOpaque(false);
+        JButton closeButton = new JButton("Done");
+        closeButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        closeButton.setBackground(PRIMARY_COLOR);
+        closeButton.setForeground(SECONDARY_COLOR);
+        closeButton.setFocusPainted(false);
+        closeButton.addActionListener(e -> dispose());
+        footer.add(closeButton);
+        content.add(footer, BorderLayout.SOUTH);
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
+    private String createTicketId(String eventName, String seat, String customer) {
+        String baseEvent = eventName == null ? "UnknownEvent" : eventName.replaceAll("\\s*\\([^)]*\\)$", "");
+        String sanitizedEvent = baseEvent.replaceAll("[^A-Za-z0-9]", "");
+        if (seat.equals("N/A")) {
+            return sanitizedEvent.isEmpty() ? "UNKNOWN_TICKET" : sanitizedEvent;
+        }
+        return seat + "_" + sanitizedEvent;
+    }
+
+    private void exportTicketImage(String customer, String eventName) {
+        if (ticketId == null) {
+            JOptionPane.showMessageDialog(this, "Please select a ticket first.");
+            return;
+        }
+        BufferedImage image = new BufferedImage(520, 720, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = image.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(Color.WHITE);
+        g2.fillRect(0, 0, image.getWidth(), image.getHeight());
+
+        g2.setColor(PRIMARY_COLOR);
+        g2.fillRect(0, 0, image.getWidth(), 120);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("SansSerif", Font.BOLD, 28));
+        g2.drawString("BOOKIST E-TICKET", 24, 56);
+        g2.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        g2.drawString("Enjoy your show!", 24, 86);
+
+        g2.setColor(new Color(240, 240, 255));
+        g2.fillRoundRect(20, 140, image.getWidth() - 40, 520, 28, 28);
+
+        g2.setColor(Color.DARK_GRAY);
+        g2.setFont(new Font("SansSerif", Font.BOLD, 20));
+        g2.drawString("Event", 40, 190);
+        g2.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        g2.drawString(eventName, 40, 220);
+
+        g2.setFont(new Font("SansSerif", Font.BOLD, 20));
+        g2.drawString("Customer", 40, 265);
+        g2.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        g2.drawString(customer, 40, 295);
+
+        g2.setFont(new Font("SansSerif", Font.BOLD, 20));
+        g2.drawString("Ticket ID", 40, 340);
+        g2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        g2.drawString(ticketId, 40, 370);
+
+        int qrX = 320;
+        int qrY = 180;
+        int qrSize = 180;
+        g2.setColor(Color.WHITE);
+        g2.fillRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
+        g2.setColor(Color.LIGHT_GRAY);
+        g2.fillRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
+        g2.setColor(Color.DARK_GRAY);
+        QrPreviewPanel.drawMockQr(g2, ticketId, qrX, qrY, qrSize);
+
+        g2.setColor(PRIMARY_COLOR);
+        g2.setStroke(new BasicStroke(4));
+        g2.drawRoundRect(16, 136, image.getWidth() - 72, 528, 28, 28);
+        g2.dispose();
+
+        String downloadsPath = System.getProperty("user.home") + File.separator + "Downloads";
+        File downloadsDir = new File(downloadsPath);
+        if (!downloadsDir.exists()) {
+            downloadsDir.mkdirs();
+        }
+        File output = new File(downloadsDir, "ticket_" + ticketId.replaceAll("[^a-zA-Z0-9_-]", "_") + ".png");
+        try {
+            javax.imageio.ImageIO.write(image, "PNG", output);
+            JOptionPane.showMessageDialog(this, "Ticket exported to " + output.getAbsolutePath());
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Failed to export ticket: " + ex.getMessage());
+        }
+    }
+
+    public static class QrPreviewPanel extends JPanel {
+        private String seed;
+
+        public void setSeed(String seed) {
+            this.seed = seed;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.setColor(Color.DARK_GRAY);
+            g2.drawRect(10, 10, getWidth() - 21, getHeight() - 21);
+            int grid = 8;
+            int cellSize = Math.min((getWidth() - 40) / grid, (getHeight() - 40) / grid);
+            int startX = (getWidth() - (cellSize * grid)) / 2;
+            int startY = (getHeight() - (cellSize * grid)) / 2;
+            long value = seed != null ? seed.hashCode() : 0;
+            for (int row = 0; row < grid; row++) {
+                for (int col = 0; col < grid; col++) {
+                    boolean filled = ((row * grid + col) % 2 == 0) ^ ((value >> (row * grid + col)) % 2 != 0);
+                    g2.setColor(filled ? Color.BLACK : Color.WHITE);
+                    g2.fillRect(startX + col * cellSize, startY + row * cellSize, cellSize, cellSize);
+                }
+            }
+            g2.setColor(Color.LIGHT_GRAY);
+            g2.drawRect(startX, startY, cellSize * grid, cellSize * grid);
+            g2.dispose();
+        }
+
+        public static void drawMockQr(Graphics2D g2, String seed, int x, int y, int size) {
+            long value = seed != null ? seed.hashCode() : 0;
+            int grid = 8;
+            int cellSize = size / grid;
+            g2.setColor(Color.WHITE);
+            g2.fillRect(x, y, size, size);
+            for (int row = 0; row < grid; row++) {
+                for (int col = 0; col < grid; col++) {
+                    boolean filled = ((row * grid + col) % 2 == 0) ^ ((value >> (row * grid + col)) % 2 != 0);
+                    g2.setColor(filled ? Color.DARK_GRAY : Color.WHITE);
+                    g2.fillRect(x + col * cellSize, y + row * cellSize, cellSize, cellSize);
+                }
+            }
+            g2.setColor(Color.GRAY);
+            g2.setStroke(new BasicStroke(2));
+            g2.drawRect(x, y, size, size);
+        }
+    }
 }

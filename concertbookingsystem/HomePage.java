@@ -10,7 +10,13 @@ public class HomePage extends JFrame {
     // Global session tracker to see if a guest user has logged in yet
     public static boolean isLoggedIn = false;
     public static String currentUsername = "";
-
+    // Brand Colors
+    private final Color PRIMARY_COLOR = Color.decode("#1800ad");
+    private final Color SECONDARY_COLOR = Color.WHITE;
+    private final Color LIGHT_GRAY = new Color(240, 240, 240);
+    private final Color TEXT_COLOR = new Color(20, 20, 140);
+    private final Color MUTED_TEXT = Color.decode("#C7C2EB");
+    
     public HomePage() {
         setTitle("Bookist");
         setExtendedState(JFrame.MAXIMIZED_BOTH); // Start Fullscreen
@@ -116,9 +122,8 @@ public class HomePage extends JFrame {
             if (!isLoggedIn) {
                 JOptionPane.showMessageDialog(this, "Authentication Required: Redirecting you to the Login Screen.");
                 this.dispose();
-                new LoginFrame().setVisible(true); // Fire up your standard gateway
+                new LoginFrame().setVisible(true); 
             } else {
-                // If they are already authenticated, take them directly into the dashboard
                 this.dispose();
                 new MainDashboardFrame().setVisible(true);
             }
@@ -137,7 +142,6 @@ public class HomePage extends JFrame {
 
         adminLoginBtn.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Admin Gateway initialized. (Default root verification protocol active).");
-            // Direct launch route bypassing normal validation for administrative controls
             this.dispose();
             new MainDashboardFrame().setVisible(true);
         });

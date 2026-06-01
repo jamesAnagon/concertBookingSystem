@@ -4,9 +4,39 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 public class MainDashboardFrame extends JFrame {
     private DatabaseManager dbManager;
+    // Brand colors (match LoginFrame)
+    private final Color PRIMARY_COLOR = Color.decode("#1800ad");
+    private final Color SECONDARY_COLOR = Color.WHITE;
+    private final Color MUTED_TEXT = Color.decode("#C7C2EB");
+    private final Color OFF_WHITE = new Color(248, 248, 252); // softer white for backgrounds
+    private final DateTimeFormatter EVENT_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
+            .withResolverStyle(ResolverStyle.SMART);
+    private final String[] eventNames = {
+            "KYLE - SEAOIL",
+            "ANCIRO - NYC",
+            "AMANOLLAH - SEAWALL",
+            "STELLA - LANE",
+            "ORBIT - DOME",
+            "NOVA - RIVERA"
+    };
+    private final String[] eventDates = {
+            "May 30, 2026",
+            "Jun 12, 2026",
+            "Jul 03, 2026",
+            "Aug 21, 2026",
+            "Sep 10, 2026",
+            "Oct 05, 2026"
+    };
+    private JPanel centerCards;
+    private BookingPanel bookingPanel;
 
     public MainDashboardFrame() {
         dbManager = new DatabaseManager();
@@ -22,88 +52,154 @@ public class MainDashboardFrame extends JFrame {
             }
         });
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel mainPanel = new JPanel(new BorderLayout(10,10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+        mainPanel.setBackground(OFF_WHITE);
 
-        JLabel welcomeLabel = new JLabel("🎟️ Concert Booking Management Panel", SwingConstants.CENTER);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        mainPanel.add(welcomeLabel, BorderLayout.NORTH);
+        // Navigation header stays the same across dashboard pages
+        TopNavBar navBar = new TopNavBar(this, "BOOKING", PRIMARY_COLOR, SECONDARY_COLOR);
 
-        // Buttons for interactive CRUD actions
-        JPanel btnPanel = new JPanel(new GridLayout(2, 2, 10, 10));
-        JButton createBtn = new JButton("Book a New Ticket");
-        JButton viewBtn = new JButton("View All Bookings");
-        JButton updateBtn = new JButton("Modify a Booking Name");
-        JButton deleteBtn = new JButton("Cancel a Booking");
+        // Banner panel with rounded dark background holding the three large buttons
+        JPanel banner = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(10,10,80));
+                int arc = 40;
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
+                g2.dispose();
+            }
+        };
+        banner.setOpaque(false);
+        banner.setLayout(new FlowLayout(FlowLayout.CENTER, 60, 18));
+        banner.setPreferredSize(new Dimension(760, 120));
+        banner.setMaximumSize(new Dimension(900, 140));
 
-        btnPanel.add(createBtn);
-        btnPanel.add(viewBtn);
-        btnPanel.add(updateBtn);
-        btnPanel.add(deleteBtn);
-        mainPanel.add(btnPanel, BorderLayout.CENTER);
+        Font btnFont = new Font("SansSerif", Font.BOLD, 20);
+        JButton bookNowBtnStyled = new JButton("BOOK TICKET");
+        JButton viewBtnStyled = new JButton("VIEW ALL BOOKING");
+        JButton cancelBtnStyled = new JButton("CANCEL BOOKING");
 
-        JButton logOutBtn = new JButton("Log Out");
-        mainPanel.add(logOutBtn, BorderLayout.SOUTH);
+        for (JButton b : new JButton[]{bookNowBtnStyled, viewBtnStyled, cancelBtnStyled}) {
+            b.setPreferredSize(new Dimension(220, 64));
+            b.setBackground(PRIMARY_COLOR);
+            b.setForeground(SECONDARY_COLOR);
+            b.setFont(btnFont);
+            b.setFocusPainted(false);
+            b.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        }
+
+        banner.add(bookNowBtnStyled);
+        banner.add(viewBtnStyled);
+        banner.add(cancelBtnStyled);
+
+        // Top container holds the shared nav and banner
+        JPanel topContainer = new JPanel();
+        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.Y_AXIS));
+        topContainer.setBackground(new Color(0,0,0,0));
+        topContainer.setOpaque(false);
+        topContainer.add(navBar);
+        topContainer.add(Box.createRigidArea(new Dimension(0,10)));
+        topContainer.add(banner);
+
+        mainPanel.add(topContainer, BorderLayout.NORTH);
+
+        // Center area uses card layout: HOME and BOOKING_PANEL
+        centerCards = new JPanel(new CardLayout());
+        JPanel homeCard = buildHomeCard();
+        bookingPanel = new BookingPanel();
+
+        centerCards.add(homeCard, "HOME");
+        centerCards.add(bookingPanel, "BOOKINGS");
+        mainPanel.add(centerCards, BorderLayout.CENTER);
+
+        // (Logout moved into header)
 
         add(mainPanel);
 
-        // Action Logic using your existing OOP structures and polymorphism
-        createBtn.addActionListener(e -> {
-            // Polymorphism example using a simple UI dialog box selection
-            String[] strategies = {"Regular Ticket", "VIP Ticket"};
-            int choice = JOptionPane.showOptionDialog(this, "Select Ticket Class:", "New Booking",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, strategies, strategies[0]);
-            
-            String name = JOptionPane.showInputDialog(this, "Enter Customer Name:");
-            if (name == null || name.trim().isEmpty()) return;
-            
-            if (choice == 0) {
-                Ticket t = new RegularTicket(name, "Coldplay World Tour", 120.0);
-                dbManager.createBooking(t);
-            } else if (choice == 1) {
-                Ticket t = new VipTicket(name, "Taylor Swift Eras", 300.0, "Front Row & Lounge Access");
-                dbManager.createBooking(t);
+        // Actions wiring from the styled buttons
+        bookNowBtnStyled.addActionListener(e -> showEventDropdown(bookNowBtnStyled));
+        viewBtnStyled.addActionListener(e -> {
+            bookingPanel.showViewMode(false);
+            ((CardLayout)centerCards.getLayout()).show(centerCards, "BOOKINGS");
+        });
+        cancelBtnStyled.addActionListener(e -> {
+            bookingPanel.showViewMode(true);
+            ((CardLayout)centerCards.getLayout()).show(centerCards, "BOOKINGS");
+        });
+
+    }
+
+    private void openSeatSelectionFrame(String eventName) {
+        this.setVisible(false);
+        SeatSelectionFrame frame = new SeatSelectionFrame(this, dbManager, eventName, PRIMARY_COLOR, SECONDARY_COLOR);
+        frame.setVisible(true);
+    }
+
+    private void showEventDropdown(Component invoker) {
+        JPopupMenu popup = new JPopupMenu();
+        for (int i = 0; i < eventNames.length; i++) {
+            String label = String.format("<html><b>%s</b><br><span style='font-size:10px;color:#666;'>%s • %s</span></html>",
+                    eventNames[i], eventDates[i], getTimeUntilEvent(eventDates[i]));
+            JMenuItem item = new JMenuItem(label);
+            item.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            final String selectedEvent = eventNames[i];
+            item.addActionListener(e -> openSeatSelectionFrame(selectedEvent));
+            popup.add(item);
+        }
+        popup.show(invoker, 0, invoker.getHeight());
+    }
+
+    private String getTimeUntilEvent(String eventDate) {
+        try {
+            LocalDate event = LocalDate.parse(eventDate, EVENT_DATE_FORMATTER);
+            LocalDate today = LocalDate.now();
+            if (!event.isAfter(today)) {
+                return "Starts today";
             }
-            JOptionPane.showMessageDialog(this, "Booking successfully added!");
-        });
-
-        viewBtn.addActionListener(e -> {
-            // This prints to console output panel right now
-            dbManager.readBookings();
-            JOptionPane.showMessageDialog(this, "Check your NetBeans terminal output window to see current records!");
-        });
-
-        updateBtn.addActionListener(e -> {
-            String idStr = JOptionPane.showInputDialog(this, "Enter Booking ID to update:");
-            if (idStr == null) return;
-            String newName = JOptionPane.showInputDialog(this, "Enter New Customer Name:");
-            if (newName == null) return;
-            
-            try {
-                int id = Integer.parseInt(idStr);
-                dbManager.updateCustomerName(id, newName);
-                JOptionPane.showMessageDialog(this, "Update command processed.");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid ID format.", "Error", JOptionPane.ERROR_MESSAGE);
+            long days = ChronoUnit.DAYS.between(today, event);
+            if (days == 1) {
+                return "Starts in 1 day";
             }
-        });
-
-        deleteBtn.addActionListener(e -> {
-            String idStr = JOptionPane.showInputDialog(this, "Enter Booking ID to delete:");
-            if (idStr == null) return;
-            try {
-                int id = Integer.parseInt(idStr);
-                dbManager.deleteBooking(id);
-                JOptionPane.showMessageDialog(this, "Deletion command processed.");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid ID format.", "Error", JOptionPane.ERROR_MESSAGE);
+            if (days < 7) {
+                return "Starts in " + days + " days";
             }
-        });
+            long weeks = days / 7;
+            return "Starts in " + weeks + " week" + (weeks > 1 ? "s" : "");
+        } catch (Exception ex) {
+            return "";
+        }
+    }
 
-        logOutBtn.addActionListener(e -> {
-            this.dispose();
-            new LoginFrame().setVisible(true);
-        });
+    // Build the home card with a simple featured events carousel
+    private JPanel buildHomeCard() {
+        JPanel p = new JPanel(new BorderLayout());
+        JPanel hero = new JPanel(new BorderLayout());
+        hero.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
+        JLabel title = new JLabel("FEATURED EVENTS", SwingConstants.LEFT);
+        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        title.setForeground(PRIMARY_COLOR);
+        title.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        p.add(title, BorderLayout.NORTH);
+        p.setBackground(OFF_WHITE);
+
+        // Placeholder data for 6 events
+        EventCarouselPanel carousel = new EventCarouselPanel(eventNames, eventDates, PRIMARY_COLOR, SECONDARY_COLOR,
+            eventName -> openSeatSelectionFrame(eventName)
+        );
+
+        p.add(carousel, BorderLayout.CENTER);
+        return p;
+    }
+
+    public void showHomeCard() {
+        if (centerCards != null) {
+            CardLayout cl = (CardLayout) centerCards.getLayout();
+            cl.show(centerCards, "HOME");
+        }
     }
 
     private void confirmQuit() {
