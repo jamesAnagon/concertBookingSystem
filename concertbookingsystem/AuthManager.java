@@ -18,6 +18,18 @@ public class AuthManager {
             return false;
         }
 
+        // Route admin logins to admin_users table (discreet admin access)
+        if (username != null && username.equalsIgnoreCase("admin")) {
+            if (!dbManager.loginAdmin(username, password)) {
+                JOptionPane.showMessageDialog(currentFrame, "Invalid admin credentials.", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            JOptionPane.showMessageDialog(currentFrame, "Admin login successful. Welcome admin.");
+            UserSession.login(username);
+            navigationManager.showAdminDashboardFrame(currentFrame);
+            return true;
+        }
+
         if (!dbManager.loginUser(username, password)) {
             JOptionPane.showMessageDialog(currentFrame, "Invalid credentials. Try again.", "Error", JOptionPane.ERROR_MESSAGE);
             return false;

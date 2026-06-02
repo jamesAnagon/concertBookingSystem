@@ -1,5 +1,6 @@
 package com.mycompany.concertbookingsystem;
 
+import com.mycompany.concertbookingsystem.dao.ConcertDAO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -17,24 +18,9 @@ public class MainDashboardFrame extends JFrame {
     private final Color SECONDARY_COLOR = Color.WHITE;
     private final Color MUTED_TEXT = Color.decode("#C7C2EB");
     private final Color OFF_WHITE = new Color(248, 248, 252); // softer white for backgrounds
-    private final DateTimeFormatter EVENT_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
+        private final DateTimeFormatter EVENT_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
             .withResolverStyle(ResolverStyle.SMART);
-    private final String[] eventNames = {
-            "KYLE - SEAOIL",
-            "ANCIRO - NYC",
-            "AMANOLLAH - SEAWALL",
-            "STELLA - LANE",
-            "ORBIT - DOME",
-            "NOVA - RIVERA"
-    };
-    private final String[] eventDates = {
-            "May 30, 2026",
-            "Jun 12, 2026",
-            "Jul 03, 2026",
-            "Aug 21, 2026",
-            "Sep 10, 2026",
-            "Oct 05, 2026"
-    };
+        private java.util.List<java.util.Map<String, Object>> concertsList = new java.util.ArrayList<>();
     private JPanel centerCards;
     private BookingPanel bookingPanel;
 
@@ -144,12 +130,23 @@ public class MainDashboardFrame extends JFrame {
 
     private void showEventDropdown(Component invoker) {
         JPopupMenu popup = new JPopupMenu();
-        for (int i = 0; i < eventNames.length; i++) {
-            String label = String.format("<html><b>%s</b><br><span style='font-size:10px;color:#666;'>%s • %s</span></html>",
-                    eventNames[i], eventDates[i], getTimeUntilEvent(eventDates[i]));
+        for (java.util.Map<String, Object> c : concertsList) {
+            String title = String.valueOf(c.getOrDefault("title", "Untitled"));
+            Object d = c.get("date");
+            String dateStr = "";
+            try {
+                if (d instanceof java.sql.Date) {
+                    dateStr = EVENT_DATE_FORMATTER.format(((java.sql.Date) d).toLocalDate());
+                } else if (d instanceof java.util.Date) {
+                    dateStr = EVENT_DATE_FORMATTER.format(new java.sql.Date(((java.util.Date) d).getTime()).toLocalDate());
+                } else if (d != null) {
+                    try { dateStr = EVENT_DATE_FORMATTER.format(java.time.LocalDate.parse(d.toString())); } catch (Exception ex) { dateStr = d.toString(); }
+                }
+            } catch (Exception ex) { dateStr = d != null ? d.toString() : ""; }
+            String label = String.format("<html><b>%s</b><br><span style='font-size:10px;color:#666;'>%s • %s</span></html>", title, dateStr, getTimeUntilEvent(dateStr));
             JMenuItem item = new JMenuItem(label);
             item.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            final String selectedEvent = eventNames[i];
+            final String selectedEvent = title;
             item.addActionListener(e -> openSeatSelectionFrame(selectedEvent));
             popup.add(item);
         }
@@ -189,7 +186,41 @@ public class MainDashboardFrame extends JFrame {
         p.setBackground(OFF_WHITE);
 
         // Placeholder data for 6 events
-        EventCarouselPanel carousel = new EventCarouselPanel(eventNames, eventDates, PRIMARY_COLOR, SECONDARY_COLOR,
+        // Load concert list from DB so admin edits affect user view
+        ConcertDAO concertDAO = new ConcertDAO(dbManager);
+        concertsList = concertDAO.getAllConcerts();
+
+        // Build arrays from concertsList for the carousel component
+        String[] eventNamesArr = new String[concertsList.size()];
+        String[] eventDatesArr = new String[concertsList.size()];
+        for (int i = 0; i < concertsList.size(); i++) {
+            java.util.Map<String, Object> c = concertsList.get(i);
+            eventNamesArr[i] = String.valueOf(c.getOrDefault("title", "Untitled"));
+            Object d = c.get("date");
+            String formatted = "";
+            try {
+                if (d instanceof java.sql.Date) {
+                    java.time.LocalDate ld = ((java.sql.Date) d).toLocalDate();
+                    formatted = EVENT_DATE_FORMATTER.format(ld);
+                } else if (d instanceof java.util.Date) {
+                    java.time.LocalDate ld = new java.sql.Date(((java.util.Date) d).getTime()).toLocalDate();
+                    formatted = EVENT_DATE_FORMATTER.format(ld);
+                } else if (d != null) {
+                    // try parse yyyy-MM-dd
+                    try {
+                        java.time.LocalDate ld = java.time.LocalDate.parse(d.toString());
+                        formatted = EVENT_DATE_FORMATTER.format(ld);
+                    } catch (Exception ex) {
+                        formatted = d.toString();
+                    }
+                }
+            } catch (Exception ex) {
+                formatted = d != null ? d.toString() : "";
+            }
+            eventDatesArr[i] = formatted;
+        }
+
+        EventCarouselPanel carousel = new EventCarouselPanel(eventNamesArr, eventDatesArr, PRIMARY_COLOR, SECONDARY_COLOR,
             eventName -> openSeatSelectionFrame(eventName)
         );
 

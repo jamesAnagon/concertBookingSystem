@@ -16,6 +16,11 @@ public class DatabaseManager {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
+    // Public accessor for DAOs to obtain a Connection
+    public Connection getConnection() throws SQLException {
+        return connect();
+    }
+
     // CREATE (Accepts ANY Ticket type using POLYMORPHISM)
     public void createBooking(Ticket ticket) {
         String sql = "INSERT INTO bookings (customer_name, concert_name, ticket_price, ticket_type, special_perk) VALUES (?, ?, ?, ?, ?)";
@@ -131,7 +136,7 @@ public class DatabaseManager {
         String sql = "SELECT * FROM bookings WHERE concert_name LIKE ?";
         List<Map<String, Object>> rows = new ArrayList<>();
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, eventName + " (%)");
+            pstmt.setString(1, eventName + "%");
             try (ResultSet rs = pstmt.executeQuery()) {
                 ResultSetMetaData md = rs.getMetaData();
                 int cols = md.getColumnCount();
@@ -179,5 +184,20 @@ public boolean loginUser(String username, String password) {
         return false;
     }
 }
+
+    // Admin login against admin_users table (remote DB assumed present)
+    public boolean loginAdmin(String username, String password) {
+        String sql = "SELECT * FROM admin_users WHERE username = ? AND password = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Admin Login Error: " + e.getMessage());
+            return false;
+        }
+    }
 
 }

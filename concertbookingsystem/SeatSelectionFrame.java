@@ -1,5 +1,7 @@
 package com.mycompany.concertbookingsystem;
 
+import com.mycompany.concertbookingsystem.dao.BookingDAO;
+import com.mycompany.concertbookingsystem.dao.ConcertDAO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -207,7 +209,8 @@ public class SeatSelectionFrame extends JFrame {
 
     private void loadBookingState() {
         String currentUser = UserSession.currentUsername != null ? UserSession.currentUsername : "Guest";
-        for (Map<String, Object> booking : dbManager.getBookingsForEvent(eventName)) {
+        BookingDAO bookingDAO = new BookingDAO(dbManager);
+        for (Map<String, Object> booking : bookingDAO.getBookingsForEventLike(eventName)) {
             String concertName = (String) booking.get("concert_name");
             if (concertName == null) continue;
             int start = concertName.lastIndexOf("(");
@@ -273,22 +276,53 @@ public class SeatSelectionFrame extends JFrame {
         String user = UserSession.currentUsername != null ? UserSession.currentUsername : "Guest";
         List<String> bookedSeats = new ArrayList<>(selectedSeats);
         double totalPrice = 0;
+        ConcertDAO concertDAO = new ConcertDAO(dbManager);
+        BookingDAO bookingDAO = new BookingDAO(dbManager);
+        Map<String, Object> concert = concertDAO.getConcertByTitle(eventName);
+        if (concert == null) {
+            JOptionPane.showMessageDialog(this, "Event data not found. Cannot complete booking.");
+            return;
+        }
+        int concertId = ((Number) concert.getOrDefault("id", 0)).intValue();
+        double basePrice = ((Number) concert.getOrDefault("price", 0.0)).doubleValue();
 
         for (String seat : bookedSeats) {
-            Ticket t;
-            if (seat.startsWith("VIP")) {
-                t = new VipTicket(user, eventName + " (" + seat + ")", 300.0, "VIP Lounge");
-                totalPrice += 300.0;
-            } else {
-                t = new RegularTicket(user, eventName + " (" + seat + ")", 120.0);
-                totalPrice += 120.0;
+            boolean isVip = isVipSeat(seat);
+            String seatType = isVip ? "VIP" : "BASIC";
+            double pricePerSeat = basePrice;
+            if (isVip) {
+                // VipTicket adds fixed fee in its calculation
+                pricePerSeat = basePrice;
             }
-            dbManager.createBooking(t);
+            // Create one booking per seat for clarity and seat tracking
+            boolean ok = bookingDAO.createBooking(user, concertId, eventName + " (" + seat + ")", seatType, 1, pricePerSeat);
+            if (!ok) {
+                JOptionPane.showMessageDialog(this, "Failed to book seat " + seat + ". It may be sold out.");
+                continue;
+            }
+            totalPrice += isVip ? (new VipTicket(user, eventName + " (" + seat + ")", pricePerSeat, "VIP Lounge")).calculateFinalPrice()
+                    : (new RegularTicket(user, eventName + " (" + seat + ")", pricePerSeat)).calculateFinalPrice();
         }
 
         dispose();
 
         BookingSummaryFrame summary = new BookingSummaryFrame(parent, user, eventName, bookedSeats, totalPrice);
         summary.setVisible(true);
+    }
+
+    private boolean isVipSeat(String seatId) {
+        // Seat id format: R{row}C{col} e.g. R4C2 -> rows 4+ considered VIP in the layout
+        try {
+            int rIndex = seatId.indexOf('R');
+            int cIndex = seatId.indexOf('C');
+            if (rIndex >= 0 && cIndex > rIndex) {
+                String rowNum = seatId.substring(rIndex + 1, cIndex);
+                int row = Integer.parseInt(rowNum);
+                return row >= 4; // rows 4+ treated as VIP in this layout
+            }
+        } catch (Exception ex) {
+            // fallback
+        }
+        return false;
     }
 }

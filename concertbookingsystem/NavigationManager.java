@@ -17,6 +17,13 @@ public class NavigationManager {
         new MainDashboardFrame().setVisible(true);
     }
 
+    public void showAdminDashboardFrame(JFrame currentFrame) {
+        if (currentFrame != null) {
+            currentFrame.dispose();
+        }
+        new AdminDashboardFrame().setVisible(true);
+    }
+
     public void showSeatSelectionFrame(MainDashboardFrame dashboardFrame, DatabaseManager databaseManager, String eventName) {
         dashboardFrame.setVisible(false);
         SeatSelectionFrame seatSelectionFrame = new SeatSelectionFrame(

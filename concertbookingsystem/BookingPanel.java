@@ -1,5 +1,7 @@
 package com.mycompany.concertbookingsystem;
 
+import com.mycompany.concertbookingsystem.dao.BookingDAO;
+import com.mycompany.concertbookingsystem.dao.ConcertDAO;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -99,7 +101,24 @@ public class BookingPanel extends JPanel {
         nameField.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR, 1));
         p.add(nameField, c);
 
+        // Concert selection loaded from DB
         c.gridx = 0; c.gridy = 2; c.gridwidth = 2;
+        ConcertDAO concertDAO = new ConcertDAO(dbManager);
+        java.util.List<java.util.Map<String, Object>> concerts = concertDAO.getAllConcerts();
+        String[] concertTitles = new String[Math.max(1, concerts.size())];
+        if (concerts.isEmpty()) {
+            concertTitles[0] = "No concerts available";
+        } else {
+            for (int i = 0; i < concerts.size(); i++) {
+                concertTitles[i] = String.valueOf(concerts.get(i).getOrDefault("title", "Untitled"));
+            }
+        }
+        JComboBox<String> concertChoice = new JComboBox<>(concertTitles);
+        concertChoice.setBackground(SECONDARY_COLOR);
+        concertChoice.setForeground(Color.DARK_GRAY);
+        p.add(concertChoice, c);
+
+        c.gridx = 0; c.gridy = 3; c.gridwidth = 2;
         JButton createBtn = new JButton("Create Booking");
         createBtn.setBackground(PRIMARY_COLOR);
         createBtn.setForeground(SECONDARY_COLOR);
@@ -111,14 +130,34 @@ public class BookingPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Please enter a customer name.");
                 return;
             }
-            int idx = choice.getSelectedIndex();
-            if (idx == 0) {
-                Ticket t = new RegularTicket(name, "Featured Concert", 120.0);
-                dbManager.createBooking(t);
-            } else {
-                Ticket t = new VipTicket(name, "Featured Concert", 300.0, "VIP Lounge");
-                dbManager.createBooking(t);
+            String selectedConcert = (String) concertChoice.getSelectedItem();
+            if (selectedConcert == null || selectedConcert.equals("No concerts available")) {
+                JOptionPane.showMessageDialog(this, "No concert selected or available.");
+                return;
             }
+            // find concert details
+            java.util.Map<String, Object> concert = null;
+            for (java.util.Map<String, Object> citem : concerts) {
+                if (selectedConcert.equals(String.valueOf(citem.getOrDefault("title", "")))) {
+                    concert = citem;
+                    break;
+                }
+            }
+            if (concert == null) {
+                JOptionPane.showMessageDialog(this, "Concert not found in DB.");
+                return;
+            }
+            int concertId = ((Number) concert.getOrDefault("id", 0)).intValue();
+            double basePrice = ((Number) concert.getOrDefault("price", 0.0)).doubleValue();
+            BookingDAO bookingDAO = new BookingDAO(dbManager);
+            int idx = choice.getSelectedIndex();
+            boolean ok;
+            if (idx == 0) {
+                ok = bookingDAO.createBooking(name, concertId, selectedConcert + " (auto)", "BASIC", 1, basePrice);
+            } else {
+                ok = bookingDAO.createBooking(name, concertId, selectedConcert + " (auto)", "VIP", 1, basePrice);
+            }
+            if (!ok) JOptionPane.showMessageDialog(this, "Failed to create booking.");
             JOptionPane.showMessageDialog(this, "Booking created.");
             loadBookingsIntoTable();
             cardLayout.show(cards, "VIEW");
