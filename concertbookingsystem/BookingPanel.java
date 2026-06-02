@@ -94,7 +94,7 @@ public class BookingPanel extends JPanel {
         p.add(lblName, c);
         c.gridx = 1;
         JTextField nameField = new JTextField(20);
-        nameField.setText(HomePage.currentUsername != null ? HomePage.currentUsername : "");
+        nameField.setText(UserSession.currentUsername != null ? UserSession.currentUsername : "");
         nameField.setBackground(SECONDARY_COLOR);
         nameField.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR, 1));
         p.add(nameField, c);
@@ -444,7 +444,7 @@ public class BookingPanel extends JPanel {
     }
 
     private void loadBookingsIntoTable() {
-        String currentUser = HomePage.currentUsername != null ? HomePage.currentUsername : "";
+        String currentUser = UserSession.currentUsername != null ? UserSession.currentUsername : "";
         java.util.List<java.util.Map<String, Object>> rows = currentUser.isEmpty()
                 ? java.util.Collections.emptyList()
                 : dbManager.getBookingsForUser(currentUser);

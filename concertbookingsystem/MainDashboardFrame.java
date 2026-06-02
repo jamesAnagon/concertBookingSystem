@@ -41,8 +41,10 @@ public class MainDashboardFrame extends JFrame {
     public MainDashboardFrame() {
         dbManager = new DatabaseManager();
         
-        setTitle("Concert Booking System Dashboard");
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setTitle("Bookist - Concert Booking System");
+        setSize(1120, 720);
+        setLocationRelativeTo(null);
+        setResizable(false);
         
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -52,43 +54,45 @@ public class MainDashboardFrame extends JFrame {
             }
         });
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10,10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+        JPanel mainPanel = new JPanel(new BorderLayout(0,18));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(24,24,24,24));
         mainPanel.setBackground(OFF_WHITE);
 
         // Navigation header stays the same across dashboard pages
         TopNavBar navBar = new TopNavBar(this, "BOOKING", PRIMARY_COLOR, SECONDARY_COLOR);
 
-        // Banner panel with rounded dark background holding the three large buttons
+        // Clean action strip for the dashboard's primary booking actions
         JPanel banner = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(10,10,80));
-                int arc = 40;
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 28, 28);
+                g2.setColor(new Color(226, 226, 242));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 28, 28);
                 g2.dispose();
             }
         };
         banner.setOpaque(false);
-        banner.setLayout(new FlowLayout(FlowLayout.CENTER, 60, 18));
-        banner.setPreferredSize(new Dimension(760, 120));
-        banner.setMaximumSize(new Dimension(900, 140));
+        banner.setLayout(new FlowLayout(FlowLayout.CENTER, 18, 16));
+        banner.setPreferredSize(new Dimension(0, 84));
+        banner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 88));
 
-        Font btnFont = new Font("SansSerif", Font.BOLD, 20);
+        Font btnFont = new Font("SansSerif", Font.BOLD, 15);
         JButton bookNowBtnStyled = new JButton("BOOK TICKET");
-        JButton viewBtnStyled = new JButton("VIEW ALL BOOKING");
+        JButton viewBtnStyled = new JButton("VIEW BOOKINGS");
         JButton cancelBtnStyled = new JButton("CANCEL BOOKING");
 
         for (JButton b : new JButton[]{bookNowBtnStyled, viewBtnStyled, cancelBtnStyled}) {
-            b.setPreferredSize(new Dimension(220, 64));
+            b.setPreferredSize(new Dimension(205, 46));
             b.setBackground(PRIMARY_COLOR);
             b.setForeground(SECONDARY_COLOR);
             b.setFont(btnFont);
             b.setFocusPainted(false);
             b.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+            b.setCursor(new Cursor(Cursor.HAND_CURSOR));
         }
 
         banner.add(bookNowBtnStyled);
@@ -101,7 +105,7 @@ public class MainDashboardFrame extends JFrame {
         topContainer.setBackground(new Color(0,0,0,0));
         topContainer.setOpaque(false);
         topContainer.add(navBar);
-        topContainer.add(Box.createRigidArea(new Dimension(0,10)));
+        topContainer.add(Box.createRigidArea(new Dimension(0,14)));
         topContainer.add(banner);
 
         mainPanel.add(topContainer, BorderLayout.NORTH);
@@ -175,14 +179,12 @@ public class MainDashboardFrame extends JFrame {
 
     // Build the home card with a simple featured events carousel
     private JPanel buildHomeCard() {
-        JPanel p = new JPanel(new BorderLayout());
-        JPanel hero = new JPanel(new BorderLayout());
-        hero.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        JPanel p = new JPanel(new BorderLayout(0, 10));
 
-        JLabel title = new JLabel("FEATURED EVENTS", SwingConstants.LEFT);
-        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        JLabel title = new JLabel("FEATURED EVENTS", SwingConstants.CENTER);
+        title.setFont(new Font("SansSerif", Font.BOLD, 22));
         title.setForeground(PRIMARY_COLOR);
-        title.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        title.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
         p.add(title, BorderLayout.NORTH);
         p.setBackground(OFF_WHITE);
 

@@ -51,7 +51,11 @@ public class SeatSelectionFrame extends JFrame {
 
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
-        topBar.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, primaryColor));
+        topBar.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 0, 2, 0, primaryColor),
+            BorderFactory.createEmptyBorder(20, 40, 20, 40)
+        ));
+        topBar.setPreferredSize(new Dimension(0, 72));
         JButton back = new JButton("← Back");
         back.setFont(new Font("SansSerif", Font.BOLD, 14));
         back.setForeground(primaryColor);
@@ -202,7 +206,7 @@ public class SeatSelectionFrame extends JFrame {
     }
 
     private void loadBookingState() {
-        String currentUser = HomePage.currentUsername != null ? HomePage.currentUsername : "Guest";
+        String currentUser = UserSession.currentUsername != null ? UserSession.currentUsername : "Guest";
         for (Map<String, Object> booking : dbManager.getBookingsForEvent(eventName)) {
             String concertName = (String) booking.get("concert_name");
             if (concertName == null) continue;
@@ -266,7 +270,7 @@ public class SeatSelectionFrame extends JFrame {
             return;
         }
 
-        String user = HomePage.currentUsername != null ? HomePage.currentUsername : "Guest";
+        String user = UserSession.currentUsername != null ? UserSession.currentUsername : "Guest";
         List<String> bookedSeats = new ArrayList<>(selectedSeats);
         double totalPrice = 0;
 
