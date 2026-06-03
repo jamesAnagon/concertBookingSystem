@@ -292,17 +292,31 @@ public class SeatSelectionFrame extends JFrame {
             boolean isVip = isVipSeat(seat);
             String seatType = isVip ? "VIP" : "BASIC";
             double pricePerSeat = isVip ? vipPrice : regularPrice;
-            // Create one booking per seat for clarity and seat tracking
-            boolean ok = bookingDAO.createBooking(user, concertId, eventName + " (" + seat + ")", seatType, 1, pricePerSeat);
-            if (!ok) {
-                JOptionPane.showMessageDialog(this, "Failed to book seat " + seat + ". It may be sold out or an error occurred.");
+            String fullConcertName = eventName + " (" + seat + ")";
+
+            // Re-check availability immediately before attempting to create the booking
+            if (bookingDAO.isSeatBooked(fullConcertName)) {
+                bookedByOthers.add(seat);
+                refreshSeatButton(seat);
+                JOptionPane.showMessageDialog(this, "Seat " + seat + " was just booked by someone else.");
                 continue;
             }
+
+            // Create one booking per seat for clarity and seat tracking
+            boolean ok = bookingDAO.createBooking(user, concertId, fullConcertName, seatType, 1, pricePerSeat);
+            if (!ok) {
+                JOptionPane.showMessageDialog(this, "Failed to book seat " + seat + ". An error occurred.");
+                continue;
+            }
+
             bookedSeats.add(seat);
-            totalPrice += isVip ? (new VipTicket(user, eventName + " (" + seat + ")", pricePerSeat, "VIP Lounge")).calculateFinalPrice()
-                    : (new RegularTicket(user, eventName + " (" + seat + ")", pricePerSeat)).calculateFinalPrice();
+            bookedByCurrentUser.add(seat);
+            refreshSeatButton(seat);
+            totalPrice += isVip ? (new VipTicket(user, fullConcertName, pricePerSeat, "VIP Lounge")).calculateFinalPrice()
+                    : (new RegularTicket(user, fullConcertName, pricePerSeat)).calculateFinalPrice();
         }
 
+        // Close selection window before showing summary
         dispose();
 
         if (bookedSeats.isEmpty()) {

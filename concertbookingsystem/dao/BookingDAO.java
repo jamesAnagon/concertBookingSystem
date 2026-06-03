@@ -16,16 +16,21 @@ public class BookingDAO {
     }
 
     public boolean createBooking(String customerName, int concertId, String concertName, String seatType, int quantity, double unitPrice) {
-        // Some schemas store only concert_name in bookings; keep signature for callers but insert known columns.
-        String insertSql = "INSERT INTO bookings (customer_name, concert_name, seat_type, quantity, ticket_price, status) VALUES (?, ?, ?, ?, ?, 'BOOKED')";
+        // Insert into bookings table matching the actual schema:
+        // customer_name, concert_name, ticket_price, ticket_type, special_perk
+        String ticketType = seatType; // "VIP" or "BASIC"
+        String specialPerk = "VIP".equals(seatType) ? "VIP Lounge" : "";
+        double totalPrice = unitPrice * quantity;
+        
+        String insertSql = "INSERT INTO bookings (customer_name, concert_name, ticket_price, ticket_type, special_perk) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = db.getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement ins = conn.prepareStatement(insertSql)) {
                 ins.setString(1, customerName);
                 ins.setString(2, concertName);
-                ins.setString(3, seatType);
-                ins.setInt(4, quantity);
-                ins.setDouble(5, unitPrice * quantity);
+                ins.setDouble(3, totalPrice);
+                ins.setString(4, ticketType);
+                ins.setString(5, specialPerk);
                 ins.executeUpdate();
             }
             conn.commit();
@@ -146,16 +151,31 @@ public class BookingDAO {
     }
 
     /**
-     * Update an existing booking's customer name, quantity, and seat type.
+     * Check if a specific concert_name entry (including seat) is already booked.
+     */
+    public boolean isSeatBooked(String fullConcertName) {
+        String sql = "SELECT 1 FROM bookings WHERE concert_name = ? LIMIT 1";
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fullConcertName);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ BookingDAO.isSeatBooked: " + e.getMessage());
+            return false; // treat errors as not booked to avoid blocking UI; caller may re-check
+        }
+    }
+
+    /**
+     * Update an existing booking's customer name and ticket type.
      * Uses PreparedStatement to safely prevent SQL injection.
      */
-    public boolean updateBooking(int bookingId, String customerName, String seatType, int quantity) {
-        String sql = "UPDATE bookings SET customer_name = ?, seat_type = ?, quantity = ? WHERE id = ?";
+    public boolean updateBooking(int bookingId, String customerName, String ticketType) {
+        String sql = "UPDATE bookings SET customer_name = ?, ticket_type = ? WHERE id = ?";
         try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, customerName);
-            pstmt.setString(2, seatType);
-            pstmt.setInt(3, quantity);
-            pstmt.setInt(4, bookingId);
+            pstmt.setString(2, ticketType);
+            pstmt.setInt(3, bookingId);
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {

@@ -23,8 +23,8 @@ public class ManageBookingsFrame extends JFrame {
     // Edit form components
     private final JTextField idField = new JTextField();
     private final JTextField customerNameField = new JTextField();
-    private final JComboBox<String> seatTypeCombo = new JComboBox<>(new String[]{"BASIC", "VIP"});
-    private final JSpinner quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 20, 1));
+    private final JComboBox<String> ticketTypeCombo = new JComboBox<>(new String[]{"BASIC", "VIP"});
+    private final JTextField priceField = new JTextField();
 
     private int selectedBookingId = -1;
 
@@ -40,8 +40,8 @@ public class ManageBookingsFrame extends JFrame {
         header.setFont(new Font("SansSerif", Font.BOLD, 22));
         add(header, BorderLayout.NORTH);
 
-        // Table setup
-        bookingsModel.setColumnIdentifiers(new Object[]{"ID", "Customer", "Event", "Seat Type", "Quantity", "Total Price", "Status"});
+        // Table setup - columns match actual bookings table schema
+        bookingsModel.setColumnIdentifiers(new Object[]{"ID", "Customer", "Event", "Ticket Type", "Price"});
         bookingsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         bookingsTable.getSelectionModel().addListSelectionListener(e -> onTableSelect());
         JScrollPane tableScroll = new JScrollPane(bookingsTable);
@@ -56,26 +56,24 @@ public class ManageBookingsFrame extends JFrame {
         c.fill = GridBagConstraints.HORIZONTAL;
         
         idField.setEditable(false);
+        priceField.setEditable(false);
 
         addFormRow(formPanel, c, 0, "ID:", idField);
         addFormRow(formPanel, c, 1, "Customer Name:", customerNameField);
-        addFormRow(formPanel, c, 2, "Seat Type:", seatTypeCombo);
-        addFormRow(formPanel, c, 3, "Quantity:", quantitySpinner);
+        addFormRow(formPanel, c, 2, "Ticket Type:", ticketTypeCombo);
+        addFormRow(formPanel, c, 3, "Price:", priceField);
 
         // Buttons
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 8));
         JButton refreshBtn = new JButton("Refresh");
-        JButton updateBtn = new JButton("Update");
         JButton deleteBtn = new JButton("Delete");
         JButton backBtn = new JButton("Back");
 
         refreshBtn.addActionListener(e -> loadData());
-        updateBtn.addActionListener(e -> updateBooking());
         deleteBtn.addActionListener(e -> deleteBooking());
         backBtn.addActionListener(e -> dispose());
 
         actionPanel.add(refreshBtn);
-        actionPanel.add(updateBtn);
         actionPanel.add(deleteBtn);
         actionPanel.add(backBtn);
 
@@ -113,10 +111,8 @@ public class ManageBookingsFrame extends JFrame {
                     row.get("id"), 
                     row.get("customer_name"), 
                     row.get("concert_name"), 
-                    row.get("seat_type"), 
-                    row.get("quantity"), 
-                    row.get("ticket_price"), 
-                    row.get("status")
+                    row.get("ticket_type"), 
+                    row.get("ticket_price")
             });
         }
     }
@@ -131,16 +127,16 @@ public class ManageBookingsFrame extends JFrame {
         selectedBookingId = (Integer) bookingsModel.getValueAt(modelRow, 0);
         idField.setText(String.valueOf(selectedBookingId));
         customerNameField.setText(String.valueOf(bookingsModel.getValueAt(modelRow, 1)));
-        seatTypeCombo.setSelectedItem(String.valueOf(bookingsModel.getValueAt(modelRow, 3)));
-        quantitySpinner.setValue((Integer) bookingsModel.getValueAt(modelRow, 4));
+        ticketTypeCombo.setSelectedItem(String.valueOf(bookingsModel.getValueAt(modelRow, 3)));
+        priceField.setText(String.valueOf(bookingsModel.getValueAt(modelRow, 4)));
     }
 
     private void clearForm() {
         selectedBookingId = -1;
         idField.setText("");
         customerNameField.setText("");
-        seatTypeCombo.setSelectedIndex(0);
-        quantitySpinner.setValue(1);
+        ticketTypeCombo.setSelectedIndex(0);
+        priceField.setText("");
     }
 
     /**
@@ -153,15 +149,14 @@ public class ManageBookingsFrame extends JFrame {
         }
         
         String customerName = customerNameField.getText().trim();
-        String seatType = (String) seatTypeCombo.getSelectedItem();
-        int quantity = (Integer) quantitySpinner.getValue();
+        String ticketType = (String) ticketTypeCombo.getSelectedItem();
         
         if (customerName.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Customer name cannot be empty.");
             return;
         }
         
-        boolean success = bookingDAO.updateBooking(selectedBookingId, customerName, seatType, quantity);
+        boolean success = bookingDAO.updateBooking(selectedBookingId, customerName, ticketType);
         if (success) {
             JOptionPane.showMessageDialog(this, "Booking updated successfully.");
             loadBookings();
