@@ -23,15 +23,12 @@ public class DatabaseManager {
 
     // CREATE (Accepts ANY Ticket type using POLYMORPHISM)
     public void createBooking(Ticket ticket) {
-        String sql = "INSERT INTO bookings (customer_name, concert_name, ticket_price, ticket_type, special_perk) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO bookings (customer_name, concert_name, ticket_price, ticket_type) VALUES (?, ?, ?, ?)";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
             pstmt.setString(1, ticket.getCustomerName());
             pstmt.setString(2, ticket.getConcertName());
             pstmt.setDouble(3, ticket.calculateFinalPrice()); // Polymorphic method call
             pstmt.setString(4, ticket.getTicketType());       // Polymorphic method call
-            pstmt.setString(5, ticket.getSpecialPerk());      // Polymorphic method call
-            
             pstmt.executeUpdate();
             System.out.println("🎉 Booking saved to DB successfully for " + ticket.getCustomerName());
         } catch (SQLException e) {
@@ -46,13 +43,12 @@ public class DatabaseManager {
             
             System.out.println("\n--- CURRENT CONCERT BOOKINGS ---");
             while (rs.next()) {
-                System.out.printf("ID: %d | Name: %s | Concert: %s | Price: $%.2f | Type: %s | Perk: %s\n",
+                System.out.printf("ID: %d | Name: %s | Concert: %s | Price: $%.2f | Type: %s\n",
                         rs.getInt("id"),
                         rs.getString("customer_name"),
                         rs.getString("concert_name"),
                         rs.getDouble("ticket_price"),
-                        rs.getString("ticket_type"),
-                        rs.getString("special_perk"));
+                        rs.getString("ticket_type"));
             }
         } catch (SQLException e) {
             System.out.println("❌ Read Error: " + e.getMessage());

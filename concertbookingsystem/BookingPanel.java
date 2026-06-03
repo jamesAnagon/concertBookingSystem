@@ -503,10 +503,9 @@ public class BookingPanel extends JPanel {
         tableModel.addColumn("Event");
         tableModel.addColumn("Price");
         tableModel.addColumn("Ticket Type");
-        tableModel.addColumn("Perk");
 
         for (Map<String, Object> r : rows) {
-            tableModel.addRow(new Object[] {false, r.get("id"), r.get("customer_name"), r.get("concert_name"), r.get("ticket_price"), r.get("ticket_type"), r.get("special_perk")});
+            tableModel.addRow(new Object[] {false, r.get("id"), r.get("customer_name"), r.get("concert_name"), r.get("ticket_price"), r.get("ticket_type")});
         }
 
         styleTableHeader();

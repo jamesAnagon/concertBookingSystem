@@ -17,12 +17,11 @@ public class BookingDAO {
 
     public boolean createBooking(String customerName, int concertId, String concertName, String seatType, int quantity, double unitPrice) {
         // Insert into bookings table matching the actual schema:
-        // customer_name, concert_name, ticket_price, ticket_type, special_perk
+        // customer_name, concert_name, ticket_price, ticket_type
         String ticketType = seatType; // "VIP" or "BASIC"
-        String specialPerk = "VIP".equals(seatType) ? "VIP Lounge" : "";
         double totalPrice = unitPrice * quantity;
-        
-        String insertSql = "INSERT INTO bookings (customer_name, concert_name, ticket_price, ticket_type, special_perk) VALUES (?, ?, ?, ?, ?)";
+
+        String insertSql = "INSERT INTO bookings (customer_name, concert_name, ticket_price, ticket_type) VALUES (?, ?, ?, ?)";
         try (Connection conn = db.getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement ins = conn.prepareStatement(insertSql)) {
@@ -30,7 +29,6 @@ public class BookingDAO {
                 ins.setString(2, concertName);
                 ins.setDouble(3, totalPrice);
                 ins.setString(4, ticketType);
-                ins.setString(5, specialPerk);
                 ins.executeUpdate();
             }
             conn.commit();
