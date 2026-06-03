@@ -274,7 +274,8 @@ public class SeatSelectionFrame extends JFrame {
         }
 
         String user = UserSession.currentUsername != null ? UserSession.currentUsername : "Guest";
-        List<String> bookedSeats = new ArrayList<>(selectedSeats);
+        List<String> requestedSeats = new ArrayList<>(selectedSeats);
+        List<String> bookedSeats = new ArrayList<>();
         double totalPrice = 0;
         ConcertDAO concertDAO = new ConcertDAO(dbManager);
         BookingDAO bookingDAO = new BookingDAO(dbManager);
@@ -287,21 +288,27 @@ public class SeatSelectionFrame extends JFrame {
         double regularPrice = ((Number) concert.getOrDefault("regular_price", 0.0)).doubleValue();
         double vipPrice = ((Number) concert.getOrDefault("vip_price", regularPrice)).doubleValue();
 
-        for (String seat : bookedSeats) {
+        for (String seat : requestedSeats) {
             boolean isVip = isVipSeat(seat);
             String seatType = isVip ? "VIP" : "BASIC";
             double pricePerSeat = isVip ? vipPrice : regularPrice;
             // Create one booking per seat for clarity and seat tracking
             boolean ok = bookingDAO.createBooking(user, concertId, eventName + " (" + seat + ")", seatType, 1, pricePerSeat);
             if (!ok) {
-                JOptionPane.showMessageDialog(this, "Failed to book seat " + seat + ". It may be sold out.");
+                JOptionPane.showMessageDialog(this, "Failed to book seat " + seat + ". It may be sold out or an error occurred.");
                 continue;
             }
+            bookedSeats.add(seat);
             totalPrice += isVip ? (new VipTicket(user, eventName + " (" + seat + ")", pricePerSeat, "VIP Lounge")).calculateFinalPrice()
                     : (new RegularTicket(user, eventName + " (" + seat + ")", pricePerSeat)).calculateFinalPrice();
         }
 
         dispose();
+
+        if (bookedSeats.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No seats were booked.");
+            return;
+        }
 
         BookingSummaryFrame summary = new BookingSummaryFrame(parent, user, eventName, bookedSeats, totalPrice);
         summary.setVisible(true);
