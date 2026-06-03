@@ -20,7 +20,6 @@ public class ManageBookingsFrame extends JFrame {
     private final DefaultTableModel bookingsModel = new DefaultTableModel();
     private final JTable bookingsTable = new JTable(bookingsModel);
     
-    // Edit form components
     private final JTextField idField = new JTextField();
     private final JTextField customerNameField = new JTextField();
     private final JComboBox<String> ticketTypeCombo = new JComboBox<>(new String[]{"BASIC", "VIP"});
@@ -36,11 +35,11 @@ public class ManageBookingsFrame extends JFrame {
         setLayout(new BorderLayout(10,10));
         getRootPane().setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        JLabel header = new JLabel("Manage Bookings - View, Update & Delete", SwingConstants.LEFT);
+        JLabel header = new JLabel("Manage Bookings", SwingConstants.LEFT);
         header.setFont(new Font("SansSerif", Font.BOLD, 22));
         add(header, BorderLayout.NORTH);
 
-        // Table setup - columns match actual bookings table schema
+        // Table setup 
         bookingsModel.setColumnIdentifiers(new Object[]{"ID", "Customer", "Event", "Ticket Type", "Price"});
         bookingsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         bookingsTable.getSelectionModel().addListSelectionListener(e -> onTableSelect());
@@ -139,9 +138,6 @@ public class ManageBookingsFrame extends JFrame {
         priceField.setText("");
     }
 
-    /**
-     * Update the selected booking using PreparedStatement
-     */
     private void updateBooking() {
         if (selectedBookingId < 0) {
             JOptionPane.showMessageDialog(this, "Please select a booking to update.");
@@ -166,9 +162,6 @@ public class ManageBookingsFrame extends JFrame {
         }
     }
 
-    /**
-     * Delete the selected booking using PreparedStatement
-     */
     private void deleteBooking() {
         if (selectedBookingId < 0) {
             JOptionPane.showMessageDialog(this, "Please select a booking to delete.");

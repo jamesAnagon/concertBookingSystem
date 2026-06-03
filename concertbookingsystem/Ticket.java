@@ -14,12 +14,10 @@ public abstract class Ticket {
         this.basePrice = basePrice;
     }
 
-    // ABSTRACTION: Subclasses must implement their own price calculation logic
     public abstract double calculateFinalPrice();
     public abstract String getTicketType();
     public abstract String getSpecialPerk();
 
-    // ENCAPSULATION: Public getters and setters to access private data safely
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     

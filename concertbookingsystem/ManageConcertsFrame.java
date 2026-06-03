@@ -118,7 +118,7 @@ public class ManageConcertsFrame extends JFrame {
             LocalDate date = LocalDate.parse(storedDate, STORAGE_FORMAT);
             return date.format(DISPLAY_FORMAT);
         } catch (Exception e) {
-            return storedDate; // Return original if parsing fails
+            return storedDate; 
         }
     }
 

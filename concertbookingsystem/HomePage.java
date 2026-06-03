@@ -22,7 +22,6 @@ public class HomePage extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH); // Start Fullscreen
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         
-        // App-wide unified exit validation wrapper
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -34,7 +33,7 @@ public class HomePage extends JFrame {
         JPanel rootPanel = new JPanel(new BorderLayout());
         rootPanel.setBackground(new Color(24, 119, 242)); // Modern Digital Blue
         
-        // --- SECTION A: TOP HEADER NAVIGATION BAR ---
+        // TOP HEADER NAVIGATION BAR ---
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false); // Transparent so the root blue shines through
         headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
@@ -60,8 +59,7 @@ public class HomePage extends JFrame {
         
         rootPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // --- SECTION B: HERO INNER CALL-TO-ACTION CENTER ---
-        // A Boxlayout stack to neatly keep layout fields centered regardless of monitor resolution scaling
+        // HERO INNER CALL-TO-ACTION CENTER 
         JPanel heroCenterWrapper = new JPanel();
         heroCenterWrapper.setLayout(new BoxLayout(heroCenterWrapper, BoxLayout.Y_AXIS));
         heroCenterWrapper.setOpaque(false);
@@ -99,7 +97,7 @@ public class HomePage extends JFrame {
         heroCenterWrapper.add(Box.createVerticalGlue());
         rootPanel.add(heroCenterWrapper, BorderLayout.CENTER);
 
-        // --- SECTION C: FOOTER GATEWAY ---
+        // FOOTER GATEWAY 
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         footerPanel.setOpaque(false);
         footerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
@@ -115,7 +113,7 @@ public class HomePage extends JFrame {
         rootPanel.add(footerPanel, BorderLayout.SOUTH);
         add(rootPanel);
 
-        // --- SECTION D: CONDITIONAL ROUTING CONTROLS ---
+        // CONDITIONAL ROUTING CONTROLS 
         
         // BOOK NOW BUTTON INTERCEPT LOGIC
         bookNowBtn.addActionListener(e -> {
@@ -128,8 +126,6 @@ public class HomePage extends JFrame {
                 new MainDashboardFrame().setVisible(true);
             }
         });
-
-        // Redirect links for the header navigation elements
         signInBtn.addActionListener(e -> {
             this.dispose();
             new LoginFrame().setVisible(true);

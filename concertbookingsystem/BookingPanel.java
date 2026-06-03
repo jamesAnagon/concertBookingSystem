@@ -4,15 +4,12 @@ import com.mycompany.concertbookingsystem.dao.BookingDAO;
 import com.mycompany.concertbookingsystem.dao.ConcertDAO;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 public class BookingPanel extends JPanel {

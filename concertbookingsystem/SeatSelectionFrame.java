@@ -302,7 +302,7 @@ public class SeatSelectionFrame extends JFrame {
                 continue;
             }
 
-            // Create one booking per seat for clarity and seat tracking
+            // one booking per 
             boolean ok = bookingDAO.createBooking(user, concertId, fullConcertName, seatType, 1, pricePerSeat);
             if (!ok) {
                 JOptionPane.showMessageDialog(this, "Failed to book seat " + seat + ". An error occurred.");
@@ -329,17 +329,16 @@ public class SeatSelectionFrame extends JFrame {
     }
 
     private boolean isVipSeat(String seatId) {
-        // Seat id format: R{row}C{col} e.g. R4C2 -> rows 4+ considered VIP in the layout
+        //R4C2 -> rows 4+ considered VIP in the layout
         try {
             int rIndex = seatId.indexOf('R');
             int cIndex = seatId.indexOf('C');
             if (rIndex >= 0 && cIndex > rIndex) {
                 String rowNum = seatId.substring(rIndex + 1, cIndex);
                 int row = Integer.parseInt(rowNum);
-                return row >= 4; // rows 4+ treated as VIP in this layout
+                return row >= 4;
             }
         } catch (Exception ex) {
-            // fallback
         }
         return false;
     }

@@ -45,7 +45,7 @@ public class LoginBrandPanel extends JPanel {
     private void drawBrandText(Graphics2D graphics2D) {
         graphics2D.setColor(AppTheme.WHITE);
         graphics2D.setFont(AppTheme.italicSerif(46));
-        graphics2D.drawString("BooKist", 138, 291);
+        graphics2D.drawString("   BooKist", 138, 291);
         graphics2D.setFont(AppTheme.boldSans(26));
         graphics2D.drawString("Ticket booking System", 109, 394);
         graphics2D.setFont(AppTheme.boldSans(14));

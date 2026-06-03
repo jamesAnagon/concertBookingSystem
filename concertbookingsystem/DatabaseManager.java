@@ -151,14 +151,12 @@ public class DatabaseManager {
     }
 
 
-// Add these two methods inside your existing DatabaseManager class:
-
 public boolean registerUser(String username, String password) {
     String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
     try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/concert_db", "root", "");
         PreparedStatement pstmt = conn.prepareStatement(sql)) {
         pstmt.setString(1, username);
-        pstmt.setString(2, password); // For production, use password hashing!
+        pstmt.setString(2, password); 
         pstmt.executeUpdate();
         return true;
     } catch (SQLException e) {

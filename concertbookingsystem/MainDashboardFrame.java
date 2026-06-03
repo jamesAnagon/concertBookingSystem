@@ -13,7 +13,6 @@ import java.util.Locale;
 
 public class MainDashboardFrame extends JFrame {
     private DatabaseManager dbManager;
-    // Brand colors (match LoginFrame)
     private final Color PRIMARY_COLOR = Color.decode("#1800ad");
     private final Color SECONDARY_COLOR = Color.WHITE;
     private final Color MUTED_TEXT = Color.decode("#C7C2EB");
@@ -44,10 +43,9 @@ public class MainDashboardFrame extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(24,24,24,24));
         mainPanel.setBackground(OFF_WHITE);
 
-        // Navigation header stays the same across dashboard pages
+        // Navigation header 
         TopNavBar navBar = new TopNavBar(this, "BOOKING", PRIMARY_COLOR, SECONDARY_COLOR);
 
-        // Clean action strip for the dashboard's primary booking actions
         JPanel banner = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -96,7 +94,7 @@ public class MainDashboardFrame extends JFrame {
 
         mainPanel.add(topContainer, BorderLayout.NORTH);
 
-        // Center area uses card layout: HOME and BOOKING_PANEL
+        // HOME and BOOKING_PANEL
         centerCards = new JPanel(new CardLayout());
         JPanel homeCard = buildHomeCard();
         bookingPanel = new BookingPanel();
@@ -105,11 +103,8 @@ public class MainDashboardFrame extends JFrame {
         centerCards.add(bookingPanel, "BOOKINGS");
         mainPanel.add(centerCards, BorderLayout.CENTER);
 
-        // (Logout moved into header)
-
         add(mainPanel);
 
-        // Actions wiring from the styled buttons
         bookNowBtnStyled.addActionListener(e -> showEventDropdown(bookNowBtnStyled));
         viewBtnStyled.addActionListener(e -> {
             bookingPanel.showViewMode(false);
@@ -191,7 +186,6 @@ public class MainDashboardFrame extends JFrame {
         p.setBackground(OFF_WHITE);
 
         // Placeholder data for 6 events
-        // Load concert list from DB so admin edits affect user view
         ConcertDAO concertDAO = new ConcertDAO(dbManager);
         concertsList = concertDAO.getAllConcerts();
 

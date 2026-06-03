@@ -1,6 +1,5 @@
 package com.mycompany.concertbookingsystem;
 
-// INHERITANCE: RegularTicket inherits from Ticket
 public class RegularTicket extends Ticket {
     
     public RegularTicket(String customerName, String concertName, double basePrice) {

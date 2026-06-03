@@ -1,6 +1,5 @@
 package com.mycompany.concertbookingsystem;
 
-// INHERITANCE: VipTicket inherits from Ticket
 public class VipTicket extends Ticket {
     private String loungeAccessPass;
 

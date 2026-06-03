@@ -103,6 +103,4 @@ public class AdminDashboardFrame extends JFrame {
             System.exit(0);
         }
     }
-
-    // Simple generic sub-panel frame that shows a JTable placeholder and a Back button
 }
