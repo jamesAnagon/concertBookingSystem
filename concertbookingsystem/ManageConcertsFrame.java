@@ -175,7 +175,6 @@ public class ManageConcertsFrame extends JFrame {
     private void onAdd() {
         if (!validateForm(false)) {
             JOptionPane.showMessageDialog(this, "Please fill all fields correctly (date format yyyy-MM-dd).");
-            return;YYYY-MM-DD).");
             return;
         }
         try {
@@ -183,11 +182,14 @@ public class ManageConcertsFrame extends JFrame {
             String concertName = concertNameField.getText().trim();
             double regularPrice = Double.parseDouble(regularPriceField.getText().trim());
             double vipPrice = Double.parseDouble(vipPriceField.getText().trim());
-            boolean ok = concertDAO.addConcert(concertName, d
+            boolean ok = concertDAO.addConcert(concertName, d, regularPrice, vipPrice);
+            if (ok) {
                 JOptionPane.showMessageDialog(this, "Concert added.");
                 loadConcerts();
                 clearForm();
-            } else JOptionPane.showMessageDialog(this, "Failed to add concert.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to add concert.");
+            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
@@ -196,7 +198,6 @@ public class ManageConcertsFrame extends JFrame {
     private void onUpdate() {
         if (!validateForm(true)) {
             JOptionPane.showMessageDialog(this, "Please select a row and ensure all fields are valid.");
-            return; (date format YYYY-MM-DD).");
             return;
         }
         try {
@@ -205,10 +206,13 @@ public class ManageConcertsFrame extends JFrame {
             String concertName = concertNameField.getText().trim();
             double regularPrice = Double.parseDouble(regularPriceField.getText().trim());
             double vipPrice = Double.parseDouble(vipPriceField.getText().trim());
-            boolean ok = concertDAO.updateConcert(id, concertName, d
+            boolean ok = concertDAO.updateConcert(id, concertName, d, regularPrice, vipPrice);
+            if (ok) {
                 JOptionPane.showMessageDialog(this, "Concert updated.");
                 loadConcerts();
-            } else JOptionPane.showMessageDialog(this, "Failed to update concert.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to update concert.");
+            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
