@@ -34,7 +34,7 @@ public class ManageBookingsFrame extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10,10));
-        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        getRootPane().setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         JLabel header = new JLabel("Manage Bookings - View, Update & Delete", SwingConstants.LEFT);
         header.setFont(new Font("SansSerif", Font.BOLD, 22));
